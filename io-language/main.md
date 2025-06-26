@@ -1,6 +1,6 @@
-## IO Language
+## io Language
 
-### What is IO?
+### What is io?
 - Prototype-based, object-oriented scripting language.
 - Dynamic typing, lightweight syntax, and homoiconic (code is data).
 - Focus on simplicity, concurrency, and flexibility.
@@ -10,17 +10,12 @@
 - Motivated to deeply understand interpreters and language design.
 - Inspired by Smalltalk (objects), Self (prototypes), Lisp (homoiconicity), and Lua (embeddability).
 
-### How to Set Up and Run Io?
+### How to Set Up and Run io?
 
 **Official instructions (via [iolanguage.org](https://iolanguage.org/)):**
+#### Download binary files https://iolanguage.org/binaries.html
 
-#### On macOS:
-
-```bash
-brew install io
-```
-
-#### On Linux:
+#### Build it locally
 
 ```bash
 sudo apt update
@@ -34,134 +29,143 @@ sudo make install
 
 ---
 
-### 4. Basic Syntax and Language Concepts
+### Basic Syntax and Language Concepts
 
 #### Variables and Assignment
 
 ```io
-x := 10     # define and assign
+x := 10     // define and assign
 x = x + 1   # reassign
 ```
 
 #### Methods
 
-```python
+```io
 sayHello := method("Hello" println)
-sayHello
-#Output: Hello
+sayHello # Output: Hello
 ```
 
 #### Loops
 
-```python
+```io
+# for(variable, start, end, [step], body)
 for(i, 1, 5, i println)
 
 
 i := 0
+# while(condition, body)
 while(i < 3, i println; i = i + 1)
 ```
 
 #### Conditionals
 
-```python
+```io
 x := 5
 if(x > 3, "x is greater than 3" println)
 ```
 
 #### Creating Objects
 
-```python
+```io
 Person := Object clone
-Person greet := method("Hi, I’m a person." println)
+Person name := nil
+Person setName := method(name, self name = name)
+Person greet := method("Hi, I'm " .. self name println)
 
 bob := Person clone
-bob greet
+bob setName("Bob")
+bob greet  # Output: Hi, I'm Bob
 ```
-
 ---
 
-### Cool Features
+#### Coroutines
 
-#### Everything is an object, prototype-based inheritance
+```io
 
-  ```python
-  parent := Object clone
-  child := parent clone
-  ```
+counter := Object clone
+counter count := method(
+  for(i, 1, 3,
+    "Counter: " .. i println
+    yield  # Pause here and let others run
+  )
+)
+
+printer := Object clone
+printer printLetters := method(
+  list("A", "B", "C") foreach(letter,
+    "Printer: " .. letter println
+    yield  # Pause here and let others run
+  )
+)
+
+counter @count
+printer @printLetters
+
+# Output: 
+# A
+# 1
+# B
+# 2
+# C
+# 3
+```
+- `yield` pauses the current coroutine, allowing others to run.
+- `@` starts a method as a coroutine (actor).
+- `resume` continues a paused coroutine.
+- The output will alternate between numbers and letters, showing cooperative multitasking.
 
 #### Message-oriented syntax
 
-  ```python
+  ```io
   "Hello, world!" println
   ```
 
-#### Homoiconicity
+#### Introspect and modify objects at runtime
 
-  ```io
-    msg := Message clone setName("+")
+```
+Person slotNames println
+# Output: list(greet, type)
 
-    # Create message chain: 1 + 2
-    msg setArguments(list(Message clone setName("2")))
+# Add a new slot (property) at runtime
+Person age := 42
+Person slotNames println  # Now includes "age"
+Person age println        # Output: 42
+# Output : list(greet, type, age)
 
-    # Set the next message (like a method chain)
-    plusMsg := Message clone setName("+")
+# remove a slot at runtime
+Person removeSlot("age")
+Person slotNames println
+# Output : list(greet, type)
 
-    # We create a context to evaluate in
-    context := Object clone
-    context setSlot("x", 1)
+# define a method
+Person sayAge := method("My age is " .. self age println)
+Person age := 30
+Person sayAge             # Output: My age is 30
 
-    # This doesn't do 1 + 2 directly, but shows how to treat code as messages:
-    context doMessage(msg)  # not meaningful alone, but shows the structure
+# source code of a method
+Person greet code println
+# Output: method("Hi, I'm a person." println)
 
-  ```
-
-#### Coroutines, Actors, Futures
-
-  ```python
-  odd := Object clone; odd print := method(1 println; yield; 3 println)
-  even := Object clone; even print := method(0 println; yield; 2 println; yield)
-  odd @print; even @print
-  ```
-
-#### Reflection & metaprogramming – Introspect and modify objects at runtime easily.
-
-    Object slotNames println  # => list of all slot names in Object
-
-#### Incremental GC – Memory management is handled automatically and incrementally to reduce pause times.
-#### Embeddable VM – Io can be embedded in other programs to provide scripting capability.
+```
 
 ---
-### 6. Is Anyone Using It in the Real World?
+### Who is using it?
 
-- Io remains a **niche language**, mostly used in **educational**, **research**, and **language exploration** contexts.
-- It has **no known large-scale enterprise adoption**, but inspired other languages (e.g. Ioke, Potion).
+- Io is mostly used in educational, research, and language exploration contexts.
+- It has no known large-scale enterprise adoption, but inspired other languages (e.g. Ioke, Potion).
 - It maintains an **open-source community**, with binaries and build support updated periodically.
 
 ---
 
-### 7. Tooling & Development Experience
+### Tooling & Development Experience
+
+- [REPL for studying](https://iolanguage.org/repl/index.html)
 
 - **REPL:** Yes, run `io` in the terminal.
-- **Syntax Highlighting:** Available for **VS Code**, **Vim**, **Emacs**, and others via community plugins.
 - **Package Manager:** `Eerie`, though limited in scope. Example:
   ```bash
   io eerie install SomePackage
   ```
-
----
-
-### 8. Embedding Io into C/C++ Projects
-
-- Io’s VM is embeddable in C/C++ applications.
-
-- Example of embedding:
-
-  ```c
-  IoObject *context = IoState_init();
-  IoState_doCString_(context, "1 + 1 println");
-  ```
-
-- Useful for creating scripting interfaces inside a host application.
 
 ---
 
@@ -177,3 +181,47 @@ bob greet
 - [REPL](https://iolanguage.org/repl/index.html)
 
 ---
+
+
+
+## Extra
+
+#### Coroutines and Futures Example
+
+```io
+# Define a slow operation
+slowAdder := Object clone
+slowAdder add := method(a, b,
+  wait(2)  # Simulate a delay (wait 2 seconds)
+  a + b
+)
+
+# Start the operation asynchronously using futureSend
+futureResult := slowAdder futureSend(add(10, 20))
+
+# Do something else while waiting
+"Calling another service..." println
+
+# Io will wait until it is ready
+"Result: " .. futureResult println
+
+# Output:
+# Doing other work...
+# (2 second pause)
+# Result: 30
+```
+
+#### Homoiconicity
+
+```io
+# Build the code as data: 1 + 2
+msg := Message clone setName("+")
+msg setArguments(list(Message clone setName("2")))
+
+root := Message clone setName("1")
+root setNext(msg)
+
+# Evaluate the message chain in the current context
+result := self doMessage(root)
+result println  # Output: 3
+```
