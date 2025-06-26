@@ -189,24 +189,23 @@ Person greet code println
 #### Coroutines and Futures Example
 
 ```io
-# Define a slow operation
+# example slow method call
 slowAdder := Object clone
 slowAdder add := method(a, b,
-  wait(2)  # Simulate a delay (wait 2 seconds)
+  wait(2)  #delay 2 seconds
   a + b
 )
 
-# Start the operation asynchronously using futureSend
+# start the operation asynchronously using futureSend
 futureResult := slowAdder futureSend(add(10, 20))
 
-# Do something else while waiting
 "Calling another service..." println
 
-# Io will wait until it is ready
+# io will wait until it is ready
 "Result: " .. futureResult println
 
 # Output:
-# Doing other work...
+# Calling another service...
 # (2 second pause)
 # Result: 30
 ```
@@ -214,14 +213,31 @@ futureResult := slowAdder futureSend(add(10, 20))
 #### Homoiconicity
 
 ```io
-# Build the code as data: 1 + 2
+# build the code as data: 1 + 2
 msg := Message clone setName("+")
 msg setArguments(list(Message clone setName("2")))
 
 root := Message clone setName("1")
 root setNext(msg)
 
-# Evaluate the message chain in the current context
+# evaluate the message chain in the current context
 result := self doMessage(root)
 result println  # Output: 3
+```
+
+#### Exceptions
+```io
+# basic try/catch
+e := try(
+  Exception raise("Something went wrong!")
+)
+if(e, "Caught exception: " .. e error println)
+
+# catching and handling specific exceptions
+e := try(
+  Exception raise("Custom error")
+)
+e catch(Exception,
+  "Handled exception: " .. e error println
+)
 ```
